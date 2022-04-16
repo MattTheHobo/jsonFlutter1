@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'entities/Note.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,9 +33,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<Note> _notes = [];
 
-  Future fetchNotes() async {
-    
+  Future<List<Note>> fetchNotes() async {
+    var url = Uri.parse(
+        'https://raw.githubusercontent.com/boriszv/json/master/random_example.json');
+    var response = await http.get(url);
+
+    List<Note> notes = [];
+
+    if (response.statusCode == 200) {
+      var notesJson = json.decode(response.body);
+      for (var noteJson in notesJson) {
+        notes.add(Note.fromJson(noteJson));
+      }
+    }
+
+    return notes;
+  }
+
+  @override
+  void initState() {
+    fetchNotes().then((value) {
+      setState(() {
+        _notes.addAll(value);
+      });
+    });
+    super.initState();
   }
 
   @override
@@ -50,18 +77,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Note Title',
+                    _notes[index].title,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Note Body',
+                    _notes[index].body,
                     style: TextStyle(color: Colors.grey.shade700),
                   )
                 ],
               ),
             ));
           },
-          itemCount: 50,
+          itemCount: _notes.length,
         ));
   }
 }
