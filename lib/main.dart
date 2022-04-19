@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -77,16 +78,21 @@ class _MyHomePageState extends State<MyHomePage> {
             return Card(
                 child: Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 32.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  CachedNetworkImage(
+                    imageUrl: _drinks[index].urlImg,
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                        radius: 60,
+                        backgroundImage: imageProvider,
+                    ),
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
                   Text(
                     _drinks[index].name,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    _drinks[index].glass,
-                    style: TextStyle(color: Colors.grey.shade700),
                   )
                 ],
               ),

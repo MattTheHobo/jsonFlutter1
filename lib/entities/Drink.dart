@@ -4,11 +4,12 @@ class Drink {
   String name;
   String glass;
   String recipe;
+  String urlImg;
 
-  Drink(this.name, this.glass, this.recipe);
+  Drink(this.name, this.glass, this.recipe, this.urlImg);
 
   factory Drink.fromJson(dynamic json) {
-    return Drink(json['strDrink'], json['strGlass'], json['strInstructions']);
+    return Drink(json['strDrink'], json['strGlass'], json['strInstructions'], json['strDrinkThumb']);
   }
 
   @override
