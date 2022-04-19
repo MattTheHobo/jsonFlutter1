@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'entities/Note.dart';
+import 'entities/Drink.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,30 +33,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Note> _notes = [];
+  List<Drink> _drinks = [];
 
-  Future<List<Note>> fetchNotes() async {
-    var url = Uri.parse(
-        'https://raw.githubusercontent.com/boriszv/json/master/random_example.json');
+  Future<List<Drink>> fetchNotes() async {
+    var url =
+        Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a');
     var response = await http.get(url);
 
-    List<Note> notes = [];
+    List<Drink> drinks = [];
 
     if (response.statusCode == 200) {
-      var notesJson = json.decode(response.body);
-      for (var noteJson in notesJson) {
+      var drinkJsonObj = json.decode(response.body)['drinks'] as List;
+
+      drinks = drinkJsonObj
+          .map((drinkJsonObj) => Drink.fromJson(drinkJsonObj))
+          .toList();
+      /*for (var noteJson in notesJson) {
         notes.add(Note.fromJson(noteJson));
-      }
+      }*/
     }
 
-    return notes;
+    return drinks;
   }
 
   @override
   void initState() {
     fetchNotes().then((value) {
       setState(() {
-        _notes.addAll(value);
+        _drinks.addAll(value);
       });
     });
     super.initState();
@@ -77,18 +81,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    _notes[index].title,
+                    _drinks[index].name,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    _notes[index].body,
+                    _drinks[index].glass,
                     style: TextStyle(color: Colors.grey.shade700),
                   )
                 ],
               ),
             ));
           },
-          itemCount: _notes.length,
+          itemCount: _drinks.length,
         ));
   }
 }
