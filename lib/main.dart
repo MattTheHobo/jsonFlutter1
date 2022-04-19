@@ -72,6 +72,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  showSearch(
+                      context: context, delegate: CustomSearchDelegate(_drinks));
+                },
+                icon: Icon(Icons.search))
+          ],
         ),
         body: ListView.builder(
           itemBuilder: (context, index) {
@@ -84,8 +92,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   CachedNetworkImage(
                     imageUrl: _drinks[index].urlImg,
                     imageBuilder: (context, imageProvider) => CircleAvatar(
-                        radius: 60,
-                        backgroundImage: imageProvider,
+                      radius: 60,
+                      backgroundImage: imageProvider,
                     ),
                     placeholder: (context, url) => CircularProgressIndicator(),
                     errorWidget: (context, url, error) => Icon(Icons.error),
@@ -100,5 +108,73 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           itemCount: _drinks.length,
         ));
+  }
+}
+
+class CustomSearchDelegate extends SearchDelegate {
+  List<Drink> _cocktails;
+
+  CustomSearchDelegate(this._cocktails);
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back_ios),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    List<Drink> drinkQuery = [];
+    for (int i = 0; i < _cocktails.length; i++) {
+      if (_cocktails[i].name.toLowerCase().contains(query.toLowerCase())) {
+        drinkQuery.add(_cocktails[i]);
+      }
+    }
+
+    return ListView.builder(
+      itemCount: drinkQuery.length,
+      itemBuilder: (context, index) {
+        var result = drinkQuery[index];
+        return ListTile(
+          title: Text(result.name),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<Drink> drinkQuery = [];
+    for (int i = 0; i < _cocktails.length; i++) {
+      if (_cocktails[i].name.toLowerCase().contains(query.toLowerCase())) {
+        drinkQuery.add(_cocktails[i]);
+      }
+    }
+
+    return ListView.builder(
+      itemCount: drinkQuery.length,
+      itemBuilder: (context, index) {
+        var result = drinkQuery[index];
+        return ListTile(
+          title: Text(result.name),
+        );
+      },
+    );
   }
 }
