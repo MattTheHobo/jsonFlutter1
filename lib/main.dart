@@ -35,23 +35,35 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Drink> _drinks = [];
+  List<String> alpha = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+            "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+  String selValue = 'a';
+  String startURL = "https://www.thecocktaildb.com/api/json/v1/1/search.php?f=";
 
-  Future<List<Drink>> fetchNotes() async {
+  Future<List<Drink>> fetchNotes(String parameter) async {
+    _drinks.clear();
+    var newURL = startURL + parameter;
     var url =
-        Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a');
+        Uri.parse(newURL);
     var response = await http.get(url);
 
     List<Drink> drinks = [];
 
     if (response.statusCode == 200) {
-      var drinkJsonObj = json.decode(response.body)['drinks'] as List;
+      try{
+        var drinkJsonObj = json.decode(response.body)['drinks'] as List;
 
-      drinks = drinkJsonObj
-          .map((drinkJsonObj) => Drink.fromJson(drinkJsonObj))
-          .toList();
-      /*for (var noteJson in notesJson) {
-        notes.add(Note.fromJson(noteJson));
-      }*/
+        drinks = drinkJsonObj
+            .map((drinkJsonObj) => Drink.fromJson(drinkJsonObj))
+            .toList();
+        /*for (var noteJson in notesJson) {
+          notes.add(Note.fromJson(noteJson));
+        }*/
+      } catch(err){
+        print("throwing new error");
+      }
+      
     }
 
     return drinks;
@@ -59,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    fetchNotes().then((value) {
+    fetchNotes('a').then((value) {
       setState(() {
         _drinks.addAll(value);
       });
@@ -71,12 +83,32 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text('Cocktails'),
           actions: [
+            DropdownButton(
+                value: selValue,
+                items: alpha.map((String item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selValue = newValue!;
+
+                    fetchNotes(selValue).then((value) {
+                      setState(() {
+                      _drinks.addAll(value);
+                      });
+                    });
+                  });
+                }),
             IconButton(
                 onPressed: () {
                   showSearch(
-                      context: context, delegate: CustomSearchDelegate(_drinks));
+                      context: context,
+                      delegate: CustomSearchDelegate(_drinks));
                 },
                 icon: Icon(Icons.search))
           ],
